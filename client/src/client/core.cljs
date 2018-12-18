@@ -33,7 +33,7 @@
   [:div.contacts
     [:h1 "Contact list"]
     (for [c @contacts]
-      [contact c])])
+      ^{:key (:name c)} [contact c])])
 
 (doseq [c test-data] (add-contact c))
 

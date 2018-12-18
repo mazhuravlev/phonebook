@@ -4,42 +4,36 @@
 (enable-console-print!)
 (println "This text is printed from src/client/core.cljs. Go ahead and edit it and see reloading in action.")
 
-
-;; (defn create-id-generator []
-;;  (let [next-id (atom 0)]
-;;    (fn [] (swap! next-id inc) @next-id)))
-;; (defonce generate-id (create-id-generator))
+(defn process-contact [contact]
+  (assoc (apply hash-map (rest contact)) :name (first contact)))
 
 (defonce test-data
-  [{:first "Vladimir" :last "Putin"}
-   {:first "Barrak" :last "Obama"}
-   {:first "Donald" :last "Trump"}
-   {:first "Ingeborga" :last "Dopkunaite"}
-   {:first "Ronald" :last "McDonald"}])
+  [["Name1" :phone "123"]
+   ["Name2" :phone "456"]
+   ["Name3"]
+   ["Name4" :phone "789" :photo "img"]
+   ["Name5" :photo "img"]])
 
-(defonce app-state (atom {:text "Hello world!"}))
 (defonce contacts (atom []))
 
 (defn add-contact [contact]
-  (swap! contacts conj contact))
+  (swap! contacts conj (process-contact contact)))
 
-(defn display-name [{:keys [first last]}]
-  (str last " " first))
-
-(defn console-name [{:keys [first last]}]
-  (js/console.log (str first " " last)))
-
-(defn contact [c]
-  [:li
-    [:span (display-name c)]
-    [:button {:on-click #(console-name c)} "Beep"]])
+(defn contact [{:keys [name phone photo]}]
+  [:div.contact
+   [:div.contact__photo-wrapper.contact__phone-wrapper_centr
+    [:p photo]]
+   [:div.contact__name-wrapper.contact__phone-wrapper_centr
+    [:p name]]
+   [:div.contact__phone-wrapper.contact__phone-wrapper_centr
+    [:p phone]]
+   [:button.contact__button {:on-click #(js/console.log (str name " " phone))} "Beep"]])
 
 (defn contact-list []
-  [:div
+  [:div.contacts
     [:h1 "Contact list"]
-    [:ul
-      (for [c @contacts]
-        [contact c])]])
+    (for [c @contacts]
+      [contact c])])
 
 (doseq [c test-data] (add-contact c))
 

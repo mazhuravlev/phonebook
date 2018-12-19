@@ -15,6 +15,7 @@
    ["Name5" :photo "img"]])
 
 (defonce contacts (atom []))
+(defonce search (atom ""))
 
 (defn add-contact [contact]
   (swap! contacts conj (process-contact contact)))
@@ -29,13 +30,24 @@
     [:p phone]]
    [:button.contact__button {:on-click #(js/console.log (str name " " phone))} "Beep"]])
 
-(defn contact-list []
+(defn contact-list [contacts]
   [:div.contacts
-    [:h1 "Contact list"]
-    (for [c @contacts]
+    (for [c contacts]
       ^{:key (:name c)} [contact c])])
 
 (doseq [c test-data] (add-contact c))
 
-(reagent/render-component [contact-list]
-                          (. js/document (getElementById "app")))
+(defn filter-contacts 
+  [search contacts]
+  (filter (fn [c] (.includes (:name c) search)) contacts))
+
+(defn app [] 
+  [:div
+    [:input {
+      :value @search 
+      :on-change (fn [e] (reset! search (-> e .-target .-value)))}]
+    [contact-list (filter-contacts @search @contacts)]])
+
+(reagent/render-component 
+  [app]
+    (. js/document (getElementById "app")))
